@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Secure Multilingual AI Speech System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to right, #f5f7fa, #c3cfe2);
+            max-width: 950px;
+            margin: auto;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        h1 { text-align: center; color: #1a237e; margin-bottom: 40px;}
+        h3 { color: #283593; display: flex; align-items: center; }
+        h3 img { margin-right: 10px; width: 40px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+        button {
+            margin: 5px 0;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            background: linear-gradient(90deg, #1e88e5, #42a5f5);
+            color: white;
+            transition: 0.3s;
+        }
+        button:hover { background: linear-gradient(90deg, #42a5f5, #64b5f6); }
+        textarea { width: 100%; border-radius: 5px; padding: 5px; border: 1px solid #90a4ae; }
+        select { padding: 5px; border-radius: 5px; margin-right: 10px; }
+        pre { background: #e8eaf6; padding: 10px; border-radius: 5px; overflow-x: auto; }
+        #audioPlayer { margin-top: 10px; width: 100%; }
+        .step { background: rgba(255,255,255,0.9); padding: 20px; border-radius: 12px; margin-bottom: 25px; box-shadow: 3px 3px 15px rgba(0,0,0,0.1);}
+        .progress-container { background: #cfd8dc; border-radius: 10px; height: 20px; margin-top: 10px; overflow: hidden;}
+        .progress-bar { height: 20px; width: 0%; background: linear-gradient(to right, #42a5f5, #1e88e5); transition: width 0.5s; }
+        .step img.workflow { width: 120px; margin: 10px 0;}
+    </style>
+</head>
+<body>
+
+<h1>🎙 Secure Multilingual AI Speech System</h1>
+
+<!-- Step 1: Upload Audio -->
+<div class="step">
+<h3><img src="https://img.icons8.com/color/48/000000/microphone.png"/>Step 1: Upload Audio</h3>
+<p>Upload your audio file (.wav/.mp3) for transcription.</p>
+<img class="workflow" src="https://img.icons8.com/color/128/000000/cloud-upload.png" alt="Upload">
+<input type="file" id="audioFile" accept=".wav, .mp3"><br>
+<button onclick="transcribeAudio()">🎧 Transcribe Audio</button>
+<div class="progress-container"><div class="progress-bar" id="progressTranscribe"></div></div>
+<p id="transcription"></p>
+</div>
+
+<!-- Step 2: AI Processing -->
+<div class="step">
+<h3><img src="https://img.icons8.com/color/48/000000/artificial-intelligence.png"/>Step 2: AI Processing</h3>
+<p>Processed text through Google AI Studio (Gemini) for multilingual analysis.</p>
+<img class="workflow" src="https://img.icons8.com/color/128/000000/cloud.png" alt="AI Cloud">
+<textarea id="inputText" rows="4" placeholder="Enter or use transcribed text"></textarea><br>
+<button onclick="processAI()">🤖 Process Text</button>
+<div class="progress-container"><div class="progress-bar" id="progressAI"></div></div>
+<pre id="aiOutput"></pre>
+</div>
+
+<!-- Step 3: Text to Speech -->
+<div class="step">
+<h3><img src="https://img.icons8.com/color/48/000000/speaker.png"/>Step 3: Text to Speech</h3>
+<p>Convert AI processed text to speech in selected language.</p>
+<img class="workflow" src="https://img.icons8.com/color/128/000000/sound.png" alt="TTS">
+<select id="langSelect">
+    <option value="en-US">English</option>
+    <option value="hi-IN">Hindi</option>
+    <option value="es-ES">Spanish</option>
+    <option value="fr-FR">French</option>
+</select>
+<button onclick="speakText()">🔊 Play Speech</button>
+<audio id="audioPlayer" controls></audio>
+</div>
+
+<!-- Step 4: Voice Authentication -->
+<div class="step">
+<h3><img src="https://img.icons8.com/color/48/000000/fingerprint.png"/>Step 4: Voice Authentication</h3>
+<p>Authenticate speaker using audio similarity (demo version).</p>
+<img class="workflow" src="https://img.icons8.com/color/128/000000/security-checked.png" alt="Voice Auth">
+<button onclick="authenticateSpeaker()">🔐 Authenticate Speaker</button>
+<div class="progress-container"><div class="progress-bar" id="progressAuth"></div></div>
+<p id="voiceAuthResult"></p>
+</div>
+
+<!-- Step 5: WER Benchmarking -->
+<div class="step">
+<h3><img src="https://img.icons8.com/color/48/000000/test-tube.png"/>Step 5: WER Benchmarking</h3>
+<p>Compare transcription with reference text to calculate Word Error Rate.</p>
+<img class="workflow" src="https://img.icons8.com/color/128/000000/comparison.png" alt="WER">
+<textarea id="referenceText" rows="2" placeholder="Enter reference text"></textarea><br>
+<button onclick="calculateWER()">📊 Calculate WER</button>
+<p id="werResult"></p>
+</div>
+
+<script>
+// ---------- Config ----------
+const ASSEMBLYAI_KEY = "YOUR_ASSEMBLYAI_KEY";
+const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY";
+
+// Utility to animate progress bar
+function updateProgress(barId, percent) {
+    document.getElementById(barId).style.width = percent + '%';
+}
+
+// ---------- Step 1: Audio Upload ----------
+async function transcribeAudio() {
+    const file = document.getElementById("audioFile").files[0];
+    if (!file) { alert("Please upload audio!"); return; }
+    updateProgress('progressTranscribe', 20);
+
+    // Demo transcription with delay
+    updateProgress('progressTranscribe', 50);
+    setTimeout(() => {
+        const transcription = "Hello, this is a demo transcription!";
+        document.getElementById("transcription").innerText = "🎤 Transcribed: " + transcription;
+        document.getElementById("inputText").value = transcription;
+        updateProgress('progressTranscribe', 100);
+        setTimeout(() => updateProgress('progressTranscribe',0),500);
+    }, 1500);
+}
+
+// ---------- Step 2: AI Processing ----------
+async function processAI() {
+    const text = document.getElementById("inputText").value;
+    if (!text) { alert("Enter text!"); return; }
+    updateProgress('progressAI', 30);
+
+    setTimeout(() => {
+        const aiResult = {
+            language:"English",
+            summary:"Demo summary of text",
+            sentiment:"Positive",
+            sensitive_info:"None",
+            redacted_text:text
+        };
+        document.getElementById("aiOutput").innerText = JSON.stringify(aiResult, null, 2);
+        updateProgress('progressAI',100);
+        setTimeout(()=>updateProgress('progressAI',0),500);
+    }, 2000);
+}
+
+// ---------- Step 3: Text-to-Speech ----------
+function speakText() {
+    const text = document.getElementById("inputText").value;
+    if (!text) { alert("No text to speak!"); return; }
+
+    const lang = document.getElementById("langSelect").value;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang;
+    window.speechSynthesis.speak(utterance);
+}
+
+// ---------- Step 4: Voice Authentication ----------
+function authenticateSpeaker() {
+    updateProgress('progressAuth',50);
+    setTimeout(()=>{
+        const similarity = Math.random().toFixed(2);
+        const result = similarity >= 0.8
+            ? `✅ Speaker Authenticated (Similarity: ${similarity})`
+            : `❌ Speaker Not Authenticated (Similarity: ${similarity})`;
+        document.getElementById("voiceAuthResult").innerText = result;
+        updateProgress('progressAuth',100);
+        setTimeout(()=>updateProgress('progressAuth',0),500);
+    },1500);
+}
+
+// ---------- Step 5: WER Benchmarking ----------
+function calculateWER() {
+    const ref = document.getElementById("referenceText").value.trim().split(/\s+/);
+    const hyp = document.getElementById("inputText").value.trim().split(/\s+/);
+    if(ref.length === 0 || hyp.length === 0){ alert("Enter both reference and hypothesis"); return; }
+
+    let distance = 0;
+    const len = Math.max(ref.length, hyp.length);
+    for(let i=0;i<len;i++){
+        if(ref[i] !== hyp[i]) distance++;
+    }
+    const wer = (distance / ref.length).toFixed(2);
+    document.getElementById("werResult").innerText = `📊 WER: ${wer}`;
+}
+</script>
+
+</body>
+</html>
